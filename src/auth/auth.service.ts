@@ -7,6 +7,8 @@ import { UserEntity } from '../entities/user.entity';
 import { RoleEnum } from '../role.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { jwtConstants } from './constants';
+import { EmailConfirmService } from '../email-confirm/email-confirm.service';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +17,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
+    private readonly emailConfirmService: EmailConfirmService,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -30,12 +33,6 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
   async register(createUserDto: CreateUserDto) {
     const userD = await this.findByEmail(createUserDto.email);
     if (userD) {
@@ -54,6 +51,7 @@ export class AuthService {
     users.password = await bcrypt.hash(createUserDto.password, 10);
     const newUser = await this.usersRepository.save(users);
     const { password, ...userResponse } = newUser;
+    await this.emailConfirmService.sendVerificationLink(users.email);
     return userResponse;
   }
 
@@ -61,5 +59,34 @@ export class AuthService {
     return this.usersRepository.findOne({
       where: { email },
     });
+  }
+  public getCookieWithJwtAccessToken(userId: number) {
+    const payload = { userId };
+    const expiresIn = '10m';
+    const token = this.jwtService.sign(payload, {
+      secret: jwtConstants.secret,
+      expiresIn,
+    });
+    return `Authentication=${token}; HttpOnly; Path=/; max-Age=/${expiresIn}`;
+  }
+
+  public getCookieWithJwtRefreshToken(userId: number) {
+    const payload = { userId };
+    const expiresIn = '10d';
+    const token = this.jwtService.sign(payload, {
+      secret: jwtConstants.secret,
+      expiresIn,
+    });
+    const cookie = `Refresh =${token}; HttpOnly; Path=/; max-Age=/${expiresIn}`;
+    return {
+      cookie,
+      token,
+    };
+  }
+  getCookieForLogout() {
+    return [
+      'Authentication=; HttpOnly; Path=/; max-Age=0',
+      'Refresh =; HttpOnly; Path=/; max-Age=0',
+    ];
   }
 }

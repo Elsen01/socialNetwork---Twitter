@@ -95,4 +95,35 @@ export class UsersService {
       select: ['id', 'email', 'password'],
     });
   }
+  async removeRefreshToken(userId: number) {
+    const user = await this.findById(userId);
+    user.currentHashedRefreshToken = null;
+    await this.usersRepository.save(user);
+  }
+  async setCurrentRefreshToken(refreshToken: string, userId: number) {
+    const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.usersRepository.update(userId, {
+      currentHashedRefreshToken,
+    });
+  }
+
+  async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
+    const user = await this.findById(userId);
+
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user.currentHashedRefreshToken,
+    );
+    if (isRefreshTokenMatching) {
+      return user;
+    }
+  }
+  async markEmailAsConfirmed(email: string) {
+    return this.usersRepository.update(
+      { email },
+      {
+        isEmailConfirmed: true,
+      },
+    );
+  }
 }

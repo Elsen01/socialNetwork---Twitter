@@ -14,6 +14,7 @@ import { CommentLikeModule } from './comment-like/comment-like.module';
 import { BannedModule } from './banned/banned.module';
 import { ShareModule } from './share/share.module';
 import { FriendlyModule } from './friendly-list/friendly.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { FriendlyModule } from './friendly-list/friendly.module';
     BannedModule,
     ShareModule,
     FriendlyModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService, GoogleStrategy, FacebookStrategy],

@@ -9,19 +9,23 @@ import { PassportModule } from '@nestjs/passport';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
+import { EmailConfirmController } from '../email-confirm/email-confirm.controller';
+import { MailModule } from '../mail/mail.module';
+import { EmailConfirmService } from '../email-confirm/email-confirm.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity]),
     UsersModule,
     PassportModule,
+    MailModule,
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '60h' },
     }),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  controllers: [AuthController, EmailConfirmController],
+  providers: [AuthService, LocalStrategy, JwtStrategy, EmailConfirmService],
   exports: [AuthService],
 })
 export class AuthModule {}

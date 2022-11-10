@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  Unique,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { RoleEnum } from '../role.enum';
 import { PostEntity } from './post.entity';
 import { CommentEntity } from './comment.entity';
@@ -14,6 +8,7 @@ import { CommentLikeEntity } from './comment.like.entity';
 import { BannedListEntity } from './banned.list.entity';
 import { ShareEntity } from './share.entity';
 import { FriendlyListEntity } from './friendly.list.entity';
+import { MessagesEntity } from './messages.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -41,6 +36,12 @@ export class UserEntity {
 
   @Column({ enum: RoleEnum, type: 'enum' })
   role: RoleEnum;
+
+  @Column({ nullable: true })
+  public currentHashedRefreshToken?: string;
+
+  @Column({ default: false })
+  public isEmailConfirmed: boolean;
 
   @OneToMany(() => PostEntity, (post) => post.user)
   posts: PostEntity[];
@@ -71,4 +72,10 @@ export class UserEntity {
 
   @OneToMany(() => FriendlyListEntity, (friend) => friend.user)
   friendshipTake: FriendlyListEntity[];
+
+  @OneToMany(() => MessagesEntity, (message) => message.user)
+  userMess: MessagesEntity[];
+
+  @OneToMany(() => FriendlyListEntity, (friend) => friend.user)
+  messSender: MessagesEntity[];
 }
