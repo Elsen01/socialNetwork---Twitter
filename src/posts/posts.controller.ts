@@ -74,34 +74,22 @@ export class PostsController {
     await this.postsService.delete(id, user.userId);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @ApiConsumes('multipart/form-data')
-  // @UseInterceptors(FileInterceptor('postUrl'))
-  // @Put('/:id')
-  // update(
-  //   @User() user,
-  //   @Param('id', new ParseIntPipe()) id: number,
-  //   @Body(new ValidationPipe({ transform: true, whitelist: true }))
-  //   updatePostDto: UpdatePostDto,
-  //   @UploadedFile(
-  //     new ParseFilePipeBuilder()
-  //       .addFileTypeValidator({
-  //         fileType: 'jpeg',
-  //       })
-  //       .addMaxSizeValidator({
-  //         maxSize: 1000000,
-  //       })
-  //       .build({
-  //         errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-  //       }),
-  //   )
-  //   postUrl: Express.Multer.File,
-  // ): Promise<ResponsePostDto> {
-  //   return this.postsService.updatePost(
-  //     user.userId,
-  //     updatePostDto,
-  //     id,
-  //     postUrl,
-  //   );
-  // }
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('postUrl'))
+  @Put('/:id')
+  update(
+    @User() user,
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    updatePostDto: UpdatePostDto,
+    postUrl: Express.Multer.File,
+  ): Promise<ResponsePostDto> {
+    return this.postsService.updatePost(
+      user.userId,
+      updatePostDto,
+      id,
+      postUrl,
+    );
+  }
 }
