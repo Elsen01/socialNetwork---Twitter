@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import {
   Body,
   Controller,
@@ -8,9 +7,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-=======
-import { Body, Controller, Delete, Param, ParseIntPipe, Post, UseGuards } from "@nestjs/common";
->>>>>>> origin/master
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
